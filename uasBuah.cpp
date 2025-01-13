@@ -1,16 +1,18 @@
-#include <iostream>
 #include <GL/glut.h>
 #include <GL/freeglut.h>
 using namespace std;
 
-// Struktur untuk rotasi
+
+
+// Struktur untuk transformasi
 struct Movement
 {
-    float rotate;
-} fruitRotation;
+    float rotateX, rotateY, scale, translateX, translateY;
+} movement;
 
-bool isMoving = true; // Status rotasi
-float lightPos[] = {10.0f, 10.0f, 10.0f, 1.0f}; // Posisi cahaya
+bool isMoving = true; 
+bool showCartesius = true; 
+float lightPos[] = {0.0f, 20.0f, 0.0f, 1.0f}; 
 
 // Prototipe fungsi
 void init3D();
@@ -22,8 +24,10 @@ void drawTable();
 void drawPlate();
 void drawWatermelonSlice();
 void drawOrange();
-void drawApple();
-void drawGrapes();
+void handleKeyboard(unsigned char key, int x, int y);
+void handleSpecialKeyboard(int key, int x, int y);
+
+
 
 // Fungsi utama
 int main(int argc, char **argv)
@@ -36,188 +40,128 @@ int main(int argc, char **argv)
     init3D();
     glutDisplayFunc(display);
     createMenu();
+    glutKeyboardFunc(handleKeyboard); // Tangani input keyboard
+    glutSpecialFunc(handleSpecialKeyboard); // Tangani tombol khusus
     glutTimerFunc(1000 / 60, update, 0);
     glutMainLoop();
     return 0;
 }
 
+// Gambar meja
 void drawTable()
 {
     glColor3ub(139, 69, 19); // Warna coklat untuk meja
     glPushMatrix();
-    glTranslatef(0.0, -10.0, 0.0); // Posisi meja
-    glScalef(1.8, 0.1, 1.0);       // Skala meja
-    glutSolidCube(30.0);           // Bentuk meja (kubus besar)
+    glTranslatef(0.0, -10.0, 0.0);
+    glScalef(1.8, 0.1, 1.0);
+    glutSolidCube(30.0);
     glPopMatrix();
 
-    // Gambar kaki meja
     float legHeight = 15.0;
     float legSize = 2.0;
+
     glPushMatrix();
-    glTranslatef(-13.0, -25.0, 13.0); // Posisi kaki pertama
+    glTranslatef(-13.0, -25.0, 13.0);
     glScalef(legSize, legHeight, legSize);
-    glutSolidCube(2.0); // Kaki pertama
+    glutSolidCube(2.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(13.0, -25.0, 13.0); // Posisi kaki kedua
+    glTranslatef(13.0, -25.0, 13.0);
     glScalef(legSize, legHeight, legSize);
-    glutSolidCube(2.0); // Kaki kedua
+    glutSolidCube(2.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-13.0, -25.0, -13.0); // Posisi kaki ketiga
+    glTranslatef(-13.0, -25.0, -13.0);
     glScalef(legSize, legHeight, legSize);
-    glutSolidCube(2.0); // Kaki ketiga
+    glutSolidCube(2.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(13.0, -25.0, -131.0); // Posisi kaki keempat
+    glTranslatef(13.0, -25.0, -13.0);
     glScalef(legSize, legHeight, legSize);
-    glutSolidCube(2.0); // Kaki keempat
+    glutSolidCube(2.0);
     glPopMatrix();
 }
 
-// Fungsi menggambar piring
+// Gambar piring
 void drawPlate()
 {
-    glColor3ub(255, 255, 255); // Warna putih untuk piring
-    
-    // Bagian atas piring (donat)
+    glColor3ub(255, 255, 255);
+
     glPushMatrix();
-    glTranslatef(0.0, -7.5, 0.0);      // Posisi piring di atas meja
-    glRotatef(-90.0, 1.0, 0.0, 0.0);   // Piring dalam posisi datar
-    glutSolidTorus(2.0, 12.0, 30, 30); // Ukuran torus diperbesar (donat)
+    glTranslatef(0.0, -7.5, 0.0);
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+    glutSolidTorus(1.0, 12.0, 30, 30);
     glPopMatrix();
-    
-    // Bagian bawah piring (disk solid)
-    glColor3ub(255, 255, 255);         // Warna putih untuk bagian bawah piring
+
     glPushMatrix();
-    glTranslatef(0.0, -7.6, 0.0);      // Posisi bagian bawah piring
-    glRotatef(-90.0, 1.0, 0.0, 0.0);   // Piring dalam posisi datar
-    glutSolidCylinder(12.0, 0.0, 30, 30); // Menggambar bagian bawah piring lebih besar
+    glTranslatef(0.0, -7.6, 0.0);
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+    glutSolidCylinder(12.0, 0.0, 30, 30);
     glPopMatrix();
 }
 
-
-
-// Fungsi menggambar jeruk
+// Gambar jeruk
 void drawOrange()
 {
-    glColor3ub(255, 165, 0); // Warna oranye
-    glutSolidSphere(5.0, 30, 30); // Ukuran diperkecil
+    glColor3ub(255, 165, 0);
+    glutSolidSphere(5.0, 30, 30);
 
     glPushMatrix();
-    glColor3ub(139, 69, 19); // Warna coklat untuk tangkai
+    glColor3ub(139, 69, 19);
     glTranslatef(0.0, 5.5, 0.0);
     glRotatef(-90.0, 1.0, 0.0, 0.0);
     GLUquadric *stem = gluNewQuadric();
-    gluCylinder(stem, 0.2, 0.1, 1.5, 12, 6); // Tangkai lebih kecil
+    gluCylinder(stem, 0.2, 0.1, 1.5, 12, 6);
     gluDeleteQuadric(stem);
-    glPopMatrix();
-
-    glPushMatrix();
-    glColor3ub(34, 139, 34); // Warna hijau untuk daun
-    glTranslatef(0.4, 6.0, 0.0);
-    glRotatef(45.0, 0.0, 1.0, 0.0);
-    glScalef(1.5, 0.05, 0.75); // Daun diperkecil
-    glutSolidSphere(0.5, 20, 20);
     glPopMatrix();
 }
 
+
+
+// Gambar semangka
 void drawWatermelonSlice()
 {
-    // Bagian daging semangka (merah)
     glPushMatrix();
-    glColor3ub(255, 0, 0); // Warna merah untuk daging semangka
-    glRotatef(-90.0, 1.0, 0.0, 0.0); // Rotasi agar kerucut datar
-    glutSolidCone(5.0, 10.0, 30, 30); // Kerucut dengan radius 5 dan tinggi 10
-    glPopMatrix();
-
-    // Bagian kulit semangka (hijau)
-    glPushMatrix();
-    glColor3ub(34, 139, 34); // Warna hijau untuk kulit semangka
-    glTranslatef(0.0, -0.1, 0.0); // Sedikit di bawah daging semangka
+    glColor3ub(255, 0, 0);
     glRotatef(-90.0, 1.0, 0.0, 0.0);
-    glutSolidTorus(0.3, 5.0, 30, 30); // Torus tipis untuk kulit semangka
+    glutSolidCone(5.0, 10.0, 30, 30);
     glPopMatrix();
 
-    // Biji semangka (hitam)
-    for (float x = -2.0; x <= 2.0; x += 1.0)
-    {
-        for (float z = -3.0; z <= 1.0; z += 1.5)
-        {
-            glPushMatrix();
-            glColor3ub(0, 0, 0); // Warna hitam untuk biji
-            glTranslatef(x, 3.0 - z, z); // Posisi biji di atas daging
-            glutSolidSphere(0.2, 10, 10); // Biji kecil
-            glPopMatrix();
-        }
-    }
+    glPushMatrix();
+    glColor3ub(34, 139, 34);
+    glTranslatef(0.0, -0.1, 0.0);
+    glRotatef(-90.0, 1.0, 0.0, 0.0);
+    glutSolidTorus(0.3, 5.0, 30, 30);
+    glPopMatrix();
 }
 
-// Fungsi menggambar apel
-void drawApple()
+// Gambar sistem kartesius
+void drawCartesius()
 {
-    glColor3ub(255, 0, 0); // Warna merah
-    glutSolidSphere(4.0, 30, 30); // Ukuran diperkecil
+    glLineWidth(1.0); 
+    glBegin(GL_LINES);
 
-    glPushMatrix();
-    glColor3ub(139, 69, 19); // Warna coklat untuk tangkai
-    glTranslatef(0.0, 4.5, 0.0);
-    glRotatef(-90.0, 1.0, 0.0, 0.0);
-    GLUquadric *stem = gluNewQuadric();
-    gluCylinder(stem, 0.1, 0.05, 1.0, 12, 6); // Tangkai lebih kecil
-    gluDeleteQuadric(stem);
-    glPopMatrix();
+    // Sumbu X (Merah)
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex3f(-40.0, 0.0, 0.0);
+    glVertex3f(40.0, 0.0, 0.0);
 
-    glPushMatrix();
-    glColor3ub(34, 139, 34); // Warna hijau untuk daun
-    glTranslatef(-0.3, 4.5, 0.0);
-    glRotatef(30.0, 0.0, 1.0, 0.0);
-    glScalef(1.5, 0.05, 0.6); // Daun diperkecil
-    glutSolidSphere(0.5, 20, 20);
-    glPopMatrix();
+    // Sumbu Y (Hijau)
+    glColor3f(0.0, 1.0, 0.0);
+    glVertex3f(0.0, -40.0, 0.0);
+    glVertex3f(0.0, 40.0, 0.0);
+
+    // Sumbu Z (Biru)
+    glColor3f(0.0, 0.0, 1.0);
+    glVertex3f(0.0, 0.0, -40.0);
+    glVertex3f(0.0, 0.0, 40.0);
+
+    glEnd();
+    glLineWidth(1.0); 
 }
-
-// Fungsi menggambar anggur
-void drawGrapes()
-{
-    glColor3ub(128, 0, 128); // Warna ungu
-
-    // Gambar kelompok anggur
-    for (float x = -1.0; x <= 1.0; x += 0.8)
-    {
-        for (float y = -0.5; y <= 1.0; y += 0.8)
-        {
-            glPushMatrix();
-            glTranslatef(x * 1.5, y * 1.5, 0.0); // Rapatkan posisi anggur
-            glutSolidSphere(1.0, 20, 20); // Ukuran diperkecil
-            glPopMatrix();
-        }
-    }
-
-    // Gambar tangkai anggur
-    glPushMatrix();
-    glColor3ub(139, 69, 19); // Warna coklat
-    glTranslatef(0.0, 3.0, 0.0);
-    glRotatef(-90.0, 1.0, 0.0, 0.0);
-    GLUquadric *stem = gluNewQuadric();
-    gluCylinder(stem, 0.1, 0.05, 2.0, 12, 6); // Tangkai lebih kecil
-    gluDeleteQuadric(stem);
-    glPopMatrix();
-
-    // Gambar daun
-    glPushMatrix();
-    glColor3ub(34, 139, 34); // Warna hijau
-    glTranslatef(0.2, 3.5, 0.0);
-    glRotatef(30.0, 0.0, 1.0, 0.0);
-    glScalef(1.5, 0.05, 0.75); // Daun diperkecil
-    glutSolidSphere(0.5, 20, 20);
-    glPopMatrix();
-}
-
-    
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -225,85 +169,136 @@ void display()
 
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
-    // Gambar meja
+    glTranslatef(movement.translateX, movement.translateY, -50.0);
+    glRotatef(movement.rotateX, 1.0, 0.0, 0.0);
+    glRotatef(movement.rotateY, 0.0, 1.0, 0.0);
+    glScalef(movement.scale, movement.scale, movement.scale);
+
+    // Tampilkan kartesius hanya jika showCartesius bernilai true
+    if (showCartesius)
+    {
+        drawCartesius();
+    }
+
     drawTable();
-
-    // Gambar piring di atas meja
     drawPlate();
-
-    // Gambar semangka (pindahkan sebelum jeruk)
+    // Posisi semangka
     glPushMatrix();
-    glTranslatef(-5.0, -5.0, 0.0); // Letakkan semangka sebelum jeruk
+    glTranslatef(-4.0, -7.0, 0.0); // Digeser lebih jauh ke kiri
     drawWatermelonSlice();
     glPopMatrix();
 
-    // Gambar jeruk
+    // Posisi jeruk
     glPushMatrix();
-    glTranslatef(0.0, -5.0, 0.0); // Letakkan jeruk di sebelah semangka
+    glTranslatef(5.0, -3.5, 0.0); // Digeser ke kanan
     drawOrange();
-    glPopMatrix();
-
-    // Gambar apel
-    glPushMatrix();
-    glTranslatef(5.0, -5.0, 0.0); // Letakkan apel di atas piring
-    drawApple();
-    glPopMatrix();
-
-    // Gambar anggur
-    glPushMatrix();
-    glTranslatef(10.0, -5.0, 0.0); // Letakkan anggur di sebelah apel
-    drawGrapes();
     glPopMatrix();
 
     glutSwapBuffers();
 }
 
-
-// Inisialisasi pencahayaan dan pengaturan 3D
 void init3D()
 {
+    movement = {0, 0, 1.0, 0, 0}; // Inisialisasi transformasi
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    GLfloat ambientLight[] = {0.3f, 0.3f, 0.3f, 1.0f};
-    GLfloat diffuseLight[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat ambientLight[] = {0.3f, 0.3f, 0.3f, 3.0f};
+    GLfloat diffuseLight[] = {1.0f, 1.0f, 1.0f, 3.0f};
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(70.0, 1.0, 1.0, 100.0);
-    gluLookAt(30.0, 30.0, 50.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     glMatrixMode(GL_MODELVIEW);
-    glClearColor(1.0, 1.0, 1.0, 1.0); 
+    glClearColor(1.0, 0.75, 0.8, 1.0);
+}
+// Fungsi untuk update animasi
+void update(int value)
+{
+    if (isMoving)
+        movement.rotateY += 1.0f;
+
+    glutPostRedisplay();
+    glutTimerFunc(1000 / 60, update, 0);
 }
 
-// Fungsi proses menu
-void processMenu(int option) {
-    switch (option) {
+// Fungsi menu
+void processMenu(int option)
+{
+    switch (option)
+    {
     case 1:
         isMoving = !isMoving;
         break;
     case 2:
         exit(0);
+        break;
     }
-    glutPostRedisplay();
 }
 
-// Fungsi untuk membuat menu
-void createMenu() {
+// Buat menu
+void createMenu()
+{
     glutCreateMenu(processMenu);
-    glutAddMenuEntry("Hentikan/Putar Rotasi", 1);
-    glutAddMenuEntry("Keluar", 2);
+    glutAddMenuEntry("MANUAL", 1);
+    glutAddMenuEntry("Exit", 2);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
-// Fungsi untuk memperbarui rotasi
-void update(int value) {
-    if (isMoving) {
-        fruitRotation.rotate += 0.15;
+// Tangani keyboard
+void handleKeyboard(unsigned char key, int x, int y)
+{
+    switch (key)
+    {
+    case 'w':
+        movement.translateY += 1.0f;
+        break;
+    case 's':
+        movement.translateY -= 1.0f;
+        break;
+    case 'a':
+        movement.translateX -= 1.0f;
+        break;
+    case 'd':
+        movement.translateX += 1.0f;
+        break;
+    case '+':
+        movement.scale += 0.1f;
+        break;
+    case '-':
+        movement.scale -= 0.1f;
+        break;
+    case 'r':
+        isMoving = !isMoving;
+        break;
+    case 'c': 
+        showCartesius = !showCartesius;
+        break;
+    case 27: // ESC
+        exit(0);
+        break;
     }
-    glutPostRedisplay();
-    glutTimerFunc(1000 / 60, update, 0);
 }
+
+// Tangani keyboard khusus
+void handleSpecialKeyboard(int key, int x, int y)
+{
+    switch (key)
+    {
+    case GLUT_KEY_UP:
+        movement.rotateX -= 5.0f;
+        break;
+    case GLUT_KEY_DOWN:
+        movement.rotateX += 5.0f;
+        break;
+    case GLUT_KEY_LEFT:
+        movement.rotateY -= 5.0f;
+        break;
+    case GLUT_KEY_RIGHT:
+        movement.rotateY += 5.0f;
+        break;
+    }
+}
+
