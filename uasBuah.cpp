@@ -12,7 +12,7 @@ struct Movement
 
 bool isMoving = true; 
 bool showCartesius = true; 
-float lightPos[] = {0.0f, 20.0f, 0.0f, 1.0f}; 
+float lightPos[] = {0.0f, 20.0f,0.0f, 1.0f}; //Posisi
 
 // Prototipe fungsi
 void init3D();
@@ -47,6 +47,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
+///////////////////////////////////////////////////BAGIAN SENJA/////////////////////////////////
 // Gambar meja
 void drawTable()
 {
@@ -61,25 +62,25 @@ void drawTable()
     float legSize = 2.0;
 
     glPushMatrix();
-    glTranslatef(-13.0, -25.0, 13.0);
+    glTranslatef(-13.0, -23.7, 10.0);
     glScalef(legSize, legHeight, legSize);
     glutSolidCube(2.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(13.0, -25.0, 13.0);
+    glTranslatef(13.0, -23.7, 10.0);
     glScalef(legSize, legHeight, legSize);
     glutSolidCube(2.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-13.0, -25.0, -13.0);
+    glTranslatef(-13.0, -23.7, -10.0);
     glScalef(legSize, legHeight, legSize);
     glutSolidCube(2.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(13.0, -25.0, -13.0);
+    glTranslatef(13.0, -23.7, -10.0);
     glScalef(legSize, legHeight, legSize);
     glutSolidCube(2.0);
     glPopMatrix();
@@ -103,23 +104,23 @@ void drawPlate()
     glPopMatrix();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////BAGIAN ROSDIANA/////////////////////////////
 // Gambar jeruk
 void drawOrange()
 {
     glColor3ub(255, 165, 0);
     glutSolidSphere(5.0, 30, 30);
-
     glPushMatrix();
-    glColor3ub(139, 69, 19);
-    glTranslatef(0.0, 5.5, 0.0);
+    glColor3ub(139, 69, 19);  
+    glTranslatef(0.0, 4.5, 0.0);
     glRotatef(-90.0, 1.0, 0.0, 0.0);
     GLUquadric *stem = gluNewQuadric();
     gluCylinder(stem, 0.2, 0.1, 1.5, 12, 6);
     gluDeleteQuadric(stem);
     glPopMatrix();
 }
-
-
 
 // Gambar semangka
 void drawWatermelonSlice()
@@ -137,6 +138,10 @@ void drawWatermelonSlice()
     glutSolidTorus(0.3, 5.0, 30, 30);
     glPopMatrix();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////BAGIAN SENJA///////////////////////////////////////////
 
 // Gambar sistem kartesius
 void drawCartesius()
@@ -162,6 +167,7 @@ void drawCartesius()
     glEnd();
     glLineWidth(1.0); 
 }
+////////////////////////////////////////////////////////////////////////////////////////
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -182,6 +188,7 @@ void display()
 
     drawTable();
     drawPlate();
+    
     // Posisi semangka
     glPushMatrix();
     glTranslatef(-4.0, -7.0, 0.0); // Digeser lebih jauh ke kiri
@@ -201,6 +208,8 @@ void init3D()
 {
     movement = {0, 0, 1.0, 0, 0}; // Inisialisasi transformasi
     glEnable(GL_DEPTH_TEST);
+
+///////////////////////////////////////BAGIAN ROSDIANA///////////////////
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -208,6 +217,8 @@ void init3D()
     GLfloat diffuseLight[] = {1.0f, 1.0f, 1.0f, 3.0f};
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+////////////////////////////////////////////////////////////////////////////
+    
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(70.0, 1.0, 1.0, 100.0);
